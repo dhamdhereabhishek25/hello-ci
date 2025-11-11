@@ -1,31 +1,35 @@
 pipeline {
-  agent any
-
+  agent none
   options { timestamps(); timeout(time: 15, unit: 'MINUTES') }
 
   environment {
     REGISTRY = 'docker.io'
-    IMAGE    = 'abhishek25dh/hello-ci'   // <-- change if your Docker Hub username differs
-  }
-
-  triggers {
-    // works with GitHub webhook; leave a light fallback poll
-    pollSCM('@daily')
+    IMAGE    = 'abhishek25dh/hello-ci'   // <-- change to your Docker Hub username/repo if different
   }
 
   stages {
-           stage('Checkout') {
-                 steps { checkout scm }
-                    } 
+    stage('Checkout') {
+      agent any
+      steps { checkout scm }
+    }
 
-
-    stage('Install') { steps { sh 'npm ci || npm install' } }   // ci if lockfile exists
-
-    stage('Test') {
-      steps { sh 'npm test || echo "no tests yet"' }
+    stage('Install & Test') {
+      agent {
+        docker {
+          image 'node:20-alpine'
+          args '-u root:root'     // allows install/cache if needed
+          reuseNode true
+        }
+      }
+      steps {
+        sh 'node -v && npm -v'
+        sh 'npm ci || npm install'
+        sh 'npm test || echo "no tests yet"'
+      }
     }
 
     stage('Build Docker') {
+      agent any
       steps {
         sh '''
           docker build -t $REGISTRY/$IMAGE:${BUILD_NUMBER} .
@@ -35,6 +39,7 @@ pipeline {
     }
 
     stage('Push Docker') {
+      agent any
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
                                           usernameVariable: 'DOCKER_USER',
@@ -50,6 +55,7 @@ pipeline {
     }
 
     stage('Deploy (local host)') {
+      agent any
       steps {
         sh '''
           docker compose -f docker-compose.prod.yml pull
