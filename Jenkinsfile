@@ -14,9 +14,10 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
-      steps { git branch: 'main', url: 'https://github.com/<you>/hello-ci.git' }
-    }
+           stage('Checkout') {
+                 steps { checkout scm }
+                    } 
+
 
     stage('Install') { steps { sh 'npm ci || npm install' } }   // ci if lockfile exists
 
