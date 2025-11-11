@@ -1,0 +1,6 @@
+services:
+  web:
+    image: abhishek25dh/hello-ci:latest   # <-- use YOUR Docker Hub username
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
