@@ -14,7 +14,7 @@ export function createServer(port = process.env.PORT || 3000) {
   return { app, server, close: () => server.close() };
 }
 
-// if run directly start the server
+// if r
 if (process.argv[1] && process.argv[1].endsWith('src/app.js')) {
   createServer();
 }
