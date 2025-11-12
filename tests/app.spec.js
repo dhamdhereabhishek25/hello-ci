@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createServer } from '../src/app.js';
 
-// createServer should export a function that returns an app (see later)
+//  should export a function that returns an app (see later)
 let server;
 
 beforeAll(async () => {
