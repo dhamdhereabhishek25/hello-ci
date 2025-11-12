@@ -12,21 +12,27 @@ pipeline {
       agent any
       steps { checkout scm }
     }
-
-    stage('Install & Test') {
-      agent {
-        docker {
-          image 'node:20-alpine'
-          args '-u root:root'     // allows install/cache if needed
-          reuseNode true
-        }
-      }
-      steps {
-        sh 'node -v && npm -v'
-        sh 'npm ci || npm install'
-        sh 'npm test || echo "no tests yet"'
-      }
+     stage('Install & Test') {
+         agent {
+             docker {
+               image 'node:20-alpine'
+               args '-u root:root'
+                reuseNode true
     }
+  }
+                steps {
+                          sh 'node -v && npm -v'
+                           sh 'npm ci || npm install'
+                            sh 'npm test'
+  }
+  post {
+    always {
+      junit allowEmptyResults: true, testResults: 'reports/junit/*.xml'
+      archiveArtifacts artifacts: 'reports/junit/*.xml', allowEmptyArchive: true
+    }
+  }
+}
+
 
     stage('Build Docker') {
       agent any

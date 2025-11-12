@@ -4,10 +4,26 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "node src/app.js",
-    "test": "node --test"
+    "test": "jest --ci --runInBand",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-junit": "^13.0.0",
+    "supertest": "^6.0.0"
   },
   "dependencies": {
     "express": "4.19.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "reporters": [
+      "default",
+      ["jest-junit", {
+        "outputDirectory": "reports/junit",
+        "outputName": "test-results.xml",
+        "addFileAttribute": "true"
+      }]
+    ]
   }
 }
